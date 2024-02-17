@@ -8,9 +8,10 @@ import { ProofData } from '@noir-lang/types';
 import { compile, PathToFileSourceMap } from '@noir-lang/noir_wasm';
 import { join } from 'path';
 import { readFileSync } from 'fs';
+import { mimcHash } from "./mimc"
 
 const getCircuit = async (name: string) => {
-    const sourcePath = new URL('circuits/src/main.nr', "file://"+appRoot.toString()+"/");
+    const sourcePath = new URL('circuits/src/main.nr', "file://" + appRoot.toString() + "/");
     const sourceMap = new PathToFileSourceMap();
 
     sourceMap.add_source_code(sourcePath.pathname, readFileSync(join(sourcePath.pathname), 'utf-8'));
@@ -52,5 +53,12 @@ describe('It generate valid proof for correct input', () => {
     it('Should verify valid proof for correct input', async () => {
         const verification = await noir.verifyFinalProof(correctProof);
         expect(verification).to.be.true;
+    });
+
+    it(`Should verify mimc hash is equal to noir's implementation`, async () => {
+        expect(mimcHash([1n]) == "0x1b0fabf651bd238445d7a85e1116146423c24f8bdee62a728e5af969da335354").to.be.true;
+    });
+    it(`Should verify mimc hash for multiple inputs is equal to noir's implementation`, async () => {
+        expect(mimcHash([1n, 2n]) == "0x0b91ebbd35d7448ecc13e75a7ceb1ce5bbe428090acfae0da2c3867a874ce6ea").to.be.true;
     });
 })

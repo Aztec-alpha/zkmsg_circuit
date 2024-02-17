@@ -15,11 +15,10 @@ fn main(secrect: Field, msg: pub Field, hashes: pub [Field; 3]) -> pub Field { /
 
 #[test]
 fn test_main() {
-    let hash = std::hash::mimc::mimc_bn254([1, 1]);
+    let hash = std::hash::mimc::mimc_bn254([1, 2]);
     // Uncomment to make test fail
     // main(1, 1);
-    let test_hash = std::hash::mimc::mimc_bn254([1]);
-    println(test_hash);
+    println(hash);
     let res = main(
         1,
         1,
