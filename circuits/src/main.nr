@@ -18,7 +18,8 @@ fn test_main() {
     let hash = std::hash::mimc::mimc_bn254([1, 1]);
     // Uncomment to make test fail
     // main(1, 1);
-    println(hash);
+    let test_hash = std::hash::mimc::mimc_bn254([1]);
+    println(test_hash);
     let res = main(
         1,
         1,
@@ -30,3 +31,4 @@ fn test_main() {
     );
     assert(res == 0x01ab06dca6eaab7fa1ff834018ff6611242fe8744441af84e38f286cf97924df);
 }
+
