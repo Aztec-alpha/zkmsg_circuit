@@ -43,8 +43,14 @@ describe('It generate valid proof for correct input', () => {
                 "0x173e7db6826c764253a876c55e0261292a7980c500aa94e66a2387049b578496"
             ]
         }
+        // const input = {x: 1, y: 2};
         // Generate proof
         correctProof = await noir.generateFinalProof(input);
         expect(correctProof.proof instanceof Uint8Array).to.be.true;
+    });
+
+    it('Should verify valid proof for correct input', async () => {
+        const verification = await noir.verifyFinalProof(correctProof);
+        expect(verification).to.be.true;
     });
 })
