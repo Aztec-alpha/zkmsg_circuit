@@ -1,0 +1,49 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  publicKey           String   @id
+  twitterId           String   @unique
+  twitterHandle       String   @unique
+  twitterProfileImage String
+  verificationTweetId String
+  threads             Thread[] @relation("group")
+}
+
+model Thread {
+  id             String    @id @default(uuid())
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @default(now()) @updatedAt
+  group          User[]    @relation(name: "group")
+  messages       Message[]
+  firstMessageId String?   @unique
+  firstMessage   Message?  @relation(name: "first_message", fields: [firstMessageId], references: [id])
+  lastMessageId  String?   @unique
+  lastMessage    Message?  @relation(name: "last_message", fields: [lastMessageId], references: [id])
+}
+
+model Message {
+  id               String    @id @default(uuid())
+  createdAt        DateTime  @default(now()) @map(name: "created_at")
+  threadId         String
+  thread           Thread    @relation(fields: [threadId], references: [id])
+  isFirstMessageOf Thread?   @relation(name: "first_message")
+  isLastMessageOf  Thread?   @relation(name: "last_message")
+  parentId         String?
+  parent           Message?  @relation(name: "parent", fields: [parentId], references: [id])
+  replies          Message[] @relation(name: "parent")
+  body             String
+  hash             String
+  proof            Json
+  publicSignals    Json
+}
