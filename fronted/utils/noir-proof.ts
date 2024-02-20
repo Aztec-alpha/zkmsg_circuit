@@ -8,16 +8,17 @@ import { parseUint8ArrayToStrArray } from "./helper";
 import { derivePublicKey } from "./mimc_noir";
 import { derivePublicKey as derivePublicKeyRaw } from "./mimc";
 import { User } from "utils/types"
-	// hashedAddress: string,
-	// pubkey: Uint8Array,
-	// signature: Uint8Array,
-	// msgHash: Uint8Array
+
+// hashedAddress: string,
+// pubkey: Uint8Array,
+// signature: Uint8Array,
+// msgHash: Uint8Array
 
 export async function generateProofZKMSG(
   secrect: string|number,
-  msg: string|number,
+  msg: string,
   group: User[],
-): Promise<ProofData | undefined> { // |undefined
+): Promise<ProofData | undefined>{ // |undefined
   const program = zkmsg as CompiledCircuit
 	const backend = new BarretenbergBackend(program);
 	const noir = new Noir(program, backend);
@@ -36,7 +37,7 @@ export async function generateProofZKMSG(
 
 
 
-  /* 2 个 Mimc 函数是等价的.
+  /* 2 个 Mimc 函数在 hash 数字的时候是等价的....
 	console.log("derivePublicKey of 1,2,3", 
 	   derivePublicKey("1"), 
 	   derivePublicKey("2"), 
@@ -86,12 +87,12 @@ export async function generateProofZKMSG(
 		]
 	};
 	*/
-	console.log("Derive secrect", derivePublicKey(secrect as string))
-	console.log("groups", group.map((user) => "0x" + user.publicKey))
-
+	// console.log("Derive secrect", derivePublicKey(secrect as string))
+	// console.log("groups", group.map((user) => "0x" + user.publicKey))
+  console.log("msg", msg)
 	const input = {
 		secrect: "0x" + secrect,
-	  msg,
+		msg: "0x" + msg,
 		hashes: group.map((user) => "0x" + user.publicKey)
 	}
 
@@ -109,8 +110,26 @@ export async function generateProofZKMSG(
 
 	} catch (e) {
 		console.log("proof generation failed: ", e);
+		// return await noir.generateFinalProof(input)
 	}
-
 	// const result = await noir.verifyProof(proof);
 	// console.log("result: ", result);
+}
+
+export async function verifyProofZKMSG(
+  proof: ProofData,
+): Promise<boolean> { // |undefined
+  const program = zkmsg as CompiledCircuit
+	const backend = new BarretenbergBackend(program);
+	const noir = new Noir(program, backend);
+	await noir.init()
+
+	try {
+		const res = await noir.verifyFinalProof(proof);
+		console.log("Verify res..", res)
+		return res
+	} catch (e) {
+		console.log("proof generation failed: ", e);
+		return false
+	}
 }

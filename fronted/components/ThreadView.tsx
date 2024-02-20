@@ -2,6 +2,9 @@ import React, { useCallback, useState } from "react"
 import { verifyMessage } from "utils/client/prove"
 import { Message, Thread, User, VKeys } from "utils/types"
 import { UserIcon } from "./UserIcon"
+import { verifyProofZKMSG } from "utils/noir-proof"
+import { ProofData } from "@noir-lang/types"
+import { deserializeProofData } from "utils/helper"
 
 interface ThreadViewProps {
 	vKeys: VKeys
@@ -23,8 +26,21 @@ function replyCountText(messageCount: number) {
 export function ThreadView(props: ThreadViewProps) {
 	const [verified, setVerified] = useState<null | boolean>(null)
 
-	const handleVerify = useCallback(async () => {
+	const handleVerifyGroth16 = useCallback(async () => {
 		const verified = await verifyMessage(props.vKeys, props.thread.firstMessage)
+		setVerified(verified)
+	}, [])
+
+	// const handleVerifyNoir = useCallback(async () => {
+	// 	const verified = await verifyProofZKMSG(props.thread. as ProofData)
+	// 	setVerified(verified)
+	// }, [])
+
+	const handleVerifyNoir = useCallback(async () => {
+		console.log("handleVerifyNoir..")
+		// console.log("props.message.proof", props.message.proof)
+		console.log("Verify message JSON.parse..", deserializeProofData(props.thread.firstMessage.proof ))
+		const verified = await verifyProofZKMSG(deserializeProofData(props.thread.firstMessage.proof) as ProofData)
 		setVerified(verified)
 	}, [])
 
@@ -53,7 +69,7 @@ export function ThreadView(props: ThreadViewProps) {
 								: "pt-1 pb-0.5 px-2 rounded text-sm bg-red-100 cursor-default"
 						}
 						disabled={verified !== null}
-						onClick={handleVerify}
+						onClick={handleVerifyNoir}
 					>
 						{verified === null
 							? "Verify"

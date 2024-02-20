@@ -9,6 +9,7 @@ import { PageContext } from "utils/context"
 import { sign } from "utils/client/prove"
 import { User } from "utils/types"
 import { generateProofZKMSG } from "utils/noir-proof"
+import { ProofData } from "@noir-lang/noir_js";
 // import { derivePublicKey } from "utils/mimc"
 // import { derivePublicKey } from "utils/mimc_noir"
 
@@ -33,10 +34,25 @@ export const CreateThread: React.FC<CreateThreadProps> = (props) => {
 	
 	const hexToDec = (hex: string) => BigInt("0x" + hex).toString(10)
 
+
+  // 序列化函数
+	function serializeProofData(proof: ProofData | undefined): string {
+		// 将 WitnessMap 转换为一个对象数组，每个对象都有 key 和 value
+		const publicInputsSerialized = Array.from(proof!.publicInputs).map(([key, value]) => ({ key, value }));
+
+		const serializable = {
+				publicInputs: publicInputsSerialized,
+				proof: proof?.proof
+		};
+
+		// 返回序列化的字符串
+		return JSON.stringify(serializable);
+	}
+
 	// Noir prove
-	const handleSubmit1 = useCallback(async () => {
-		if (secretKey === null) { return}
-    // const hash = hashMessage(value).toString(16)
+	const handleSubmit = useCallback(async () => {
+		if (secretKey === null) { return }
+    const hash = hashMessage(value).toString(16)
 		// console.log("...", hexToDec(secretKey), hexToDec(hash), group_)
 		
 		// console.log("1 hash", derivePublicKey("1") );
@@ -52,15 +68,46 @@ export const CreateThread: React.FC<CreateThreadProps> = (props) => {
 		const proof = await generateProofZKMSG(s, msg, g) 
 		*/
 
-		const proof = await generateProofZKMSG(secretKey, value, group)
-
+		const proof = await generateProofZKMSG(secretKey, hash, group)
 		// const proof = await generateProofZKMSG(1, 2, [1,2,3])
     // const proof = await generateProofZKMSG('1', '2', ['1','3','2'])
     // const proof = await generateProofZKMSG(hexToDec(secretKey), hexToDec(hash), group_)
 		
+		console.log("CreateThread value", value)
+		console.log("CreateThread proof", proof)
+		console.log("  proof is:", proof?.publicInputs)
+		console.log(" serializeProofData proof is:", serializeProofData(proof))
 
-    // const signature = await sign(proof, secretKey)
+    // proof?.proof
+		
+		const message = {
+			body: value,
+			hash: hashMessage(value).toString(16),
+			// proof, // raw data type
+      proof: serializeProofData(proof),
+			publicSignals: {PI: proof?.publicInputs.values},
+		}
 
+		const res = await fetch("/api/threads", {
+			method: "POST",
+			headers: { "content-type": "application/json" },
+			body: JSON.stringify({
+				group: group.map((user) => user.publicKey),
+				firstMessage: message,
+			}),
+		})
+
+    console.log("res", res)
+
+		// if (res.status === 200) {
+		// 	const location = res.headers.get("Location")
+		// 	console.log("location: ", location);
+		// 	if (location !== null) {
+		// 		router.push(location)
+		// 	}
+		// } else {
+		// 	alert("Failed to create thread 😭")
+		// }
 		router.push("/");
     // router.push({
     //   pathname: "/thread",
@@ -72,7 +119,7 @@ export const CreateThread: React.FC<CreateThreadProps> = (props) => {
 	}, [secretKey, value, group, router])
 
 	// groth16 - prove.
-	const handleSubmit = useCallback(async () => {
+	const handleSubmitGroth16 = useCallback(async () => {
 		if (secretKey === null) { return }
 		const { proof, publicSignals } = await sign(secretKey, group, value)
 		const message = {
@@ -100,6 +147,9 @@ export const CreateThread: React.FC<CreateThreadProps> = (props) => {
 			alert("Failed to create thread 😭")
 		}
 	}, [secretKey, value, group, router])
+
+	// 所有的记录在案的 Users
+	// console.log("props.defaultUsers", props.defaultUsers)
 
 	return (
 		<div>
@@ -132,7 +182,7 @@ export const CreateThread: React.FC<CreateThreadProps> = (props) => {
 					type="button"
 					value="Post"
 					disabled={user === null || value === "" || group.length < 2}
-					onClick={handleSubmit1}
+					onClick={handleSubmit}
 				/>
 			</div>
 		</div>

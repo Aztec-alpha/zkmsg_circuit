@@ -1,8 +1,9 @@
 {
 	"private": true,
-	"name": "zkmessage.xyz",
-	"version": "0.0.0",
+	"name": "zkmessage",
+	"version": "1.0.0",
 	"main": "index.js",
+	"license": "MIT",
 	"scripts": {
 		"start": "next start -p $PORT",
 		"export": "next export",
@@ -14,7 +15,6 @@
 		"type": "git",
 		"url": "git+https://github.com/joeltg/zkmessage.xyz.git"
 	},
-	"license": "MIT",
 	"bugs": {
 		"url": "https://github.com/joeltg/zkmessage.xyz/issues"
 	},
@@ -31,7 +31,7 @@
 		"fp-ts": "^2.11.5",
 		"io-ts": "^2.2.16",
 		"moment": "^2.29.1",
-		"next": "^12.3",
+		"next": "^14.1.0",
 		"nookies": "^2.5.2",
 		"prisma": "^3.5.0",
 		"react": "^18.2.0",

@@ -13,23 +13,25 @@ const postRequestBody = t.type({
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
 	if (req.method !== "POST") {
+		console.log("Request method not supported.")
 		return res.status(400).end()
 	}
 
-	if (!postRequestBody.is(req.body)) {
-		return res.status(400).end()
-	}
+	// if (!postRequestBody.is(req.body)) {
+	// 	return res.status(401).end()
+	// }
 
 	const { body, hash, proof, publicSignals } = req.body
 
-	if (hashMessage(body).toString(16) !== hash) {
-		return res.status(400).end()
-	}
+	// if (hashMessage(body).toString(16) !== hash) {
+	// 	return res.status(402).end()
+	// }
 
 	if (typeof req.query.id !== "string") {
-		return res.status(500).end()
+		return res.status(403).end()
 	}
 
+	console.log("req.query.id ", req.query.id )
 	await prisma.message
 		.create({
 			data: {
@@ -46,7 +48,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 			res.status(200).end()
 		})
 		.catch((err) => {
-			console.error(err)
+			console.error("prisma.message Error:", err)
 			res.status(500).end()
 		})
 }

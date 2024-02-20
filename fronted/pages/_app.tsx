@@ -13,7 +13,7 @@ import "tailwindcss/tailwind.css"
 import "../style.css"
 
 export default function App({ Component, pageProps }: AppProps) {
-	const [user, setUser] = useState<null | User>(pageProps.user)
+	const [user, setUser] = useState<null | User>((pageProps as { user?: User }).user ?? null);
 
 	const [loading, setLoading] = useState(true)
 	const [secretKey, setSecretKey] = useState<null | string>(null)

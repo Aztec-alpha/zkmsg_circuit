@@ -1,4 +1,6 @@
 import { ethers } from "ethers";
+import { ProofData } from "@noir-lang/types"
+
 export async function parseUint8ArrayToStrArray(
 	value: Uint8Array
 ): Promise<string[]> {
@@ -100,3 +102,32 @@ export const typeName = (type: number) => {
 		return "Social";
 	}
 };
+
+
+function objectToUint8Array(obj: {[key: number]: number}): Uint8Array {
+	// 假设对象的键是连续的，获取对象的长度即最大索引+1
+	const length = Object.keys(obj).length;
+	const array = new Uint8Array(length);
+
+	for (let i = 0; i < length; i++) {
+			array[i] = obj[i];
+	}
+
+	return array;
+}
+
+// 反序列化函数
+export function deserializeProofData(serialized: any): ProofData {
+	const parsed = JSON.parse(serialized);
+
+	// 将解析后的对象数组转换回 WitnessMap
+	const publicInputsDeserialized = new Map<number, string>(parsed.publicInputs.map((obj: { key: number; value: string }) => [obj.key, obj.value]));
+	
+	console.log("deserializeProofData parsed",parsed )
+	// 将数组转换回 Uint8Array
+	const proofDeserialized = objectToUint8Array(parsed.proof);
+	return {
+			publicInputs: publicInputsDeserialized,
+			proof: proofDeserialized
+	};
+}

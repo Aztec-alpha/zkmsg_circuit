@@ -4,6 +4,9 @@ import moment from "moment"
 
 import type { Message, User, VKeys } from "utils/types"
 import { verifyMessage } from "utils/client/prove"
+import { verifyProofZKMSG } from "utils/noir-proof"
+import { ProofData } from "@noir-lang/types"
+import { deserializeProofData } from "utils/helper"
 
 interface MessageViewProps {
 	vKeys: VKeys
@@ -14,8 +17,16 @@ interface MessageViewProps {
 export function MessageView(props: MessageViewProps) {
 	const [verified, setVerified] = useState<null | boolean>(null)
 
-	const handleVerify = useCallback(async () => {
-		const verified = await verifyMessage(props.vKeys, props.message)
+	// const handleVerify = useCallback(async () => {
+	// 	const verified = await verifyMessage(props.vKeys, props.message)
+	// 	setVerified(verified)
+	// }, [])
+
+	const handleVerifyNoir = useCallback(async () => {
+		console.log("handleVerifyNoir..")
+		// console.log("props.message.proof", props.message.proof)
+		console.log("Verify message JSON.parse..", deserializeProofData(props.message.proof ))
+		const verified = await verifyProofZKMSG(deserializeProofData(props.message.proof) as ProofData)
 		setVerified(verified)
 	}, [])
 
@@ -35,7 +46,7 @@ export function MessageView(props: MessageViewProps) {
 							: "pt-1 pb-0.5 px-2 rounded text-sm bg-red-100 cursor-default"
 					}
 					disabled={verified !== null}
-					onClick={handleVerify}
+					onClick={handleVerifyNoir}
 				>
 					{verified === null
 						? "Verify"
