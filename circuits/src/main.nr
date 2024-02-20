@@ -31,6 +31,14 @@ fn test_main() {
     assert(res == 0x01ab06dca6eaab7fa1ff834018ff6611242fe8744441af84e38f286cf97924df);
 }
 
+// use dep::std::println;
 // fn main(x: Field, y: pub Field) {
 //     assert(x != y);
+
+//     println(f"1..{x}");
+// }
+
+// #[test]
+// fn test_main() {
+//     main(1, 2)
 // }
