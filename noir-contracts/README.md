@@ -5,9 +5,14 @@ and some Noir adaptation and modifications are made in the prove/verify/API part
 
 ## Test noir-contracts
 ```
-## start aztec
-aztec-up 0.24.0
+## Start the sandbox
+aztec-up 0.30.1
 aztec-sandbox
-## test contracts
+## Compile
+cd noir-contracts
+yarn compile
+## Generate the contract artifact json and typescript interface
+yarn codegen
+## test
 yarn test
 ```
